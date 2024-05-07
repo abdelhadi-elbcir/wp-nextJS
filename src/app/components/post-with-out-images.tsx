@@ -82,6 +82,10 @@ const PostWithOutImages: any = () => {
       });
   };
 
+  const handleCopy = (content: string) => {
+    navigator.clipboard.writeText(content);
+  };
+
   return (
     <div style={{ margin: "10px" }}>
       <table style={{ borderCollapse: "collapse", width: "100%" }}>
@@ -99,9 +103,16 @@ const PostWithOutImages: any = () => {
               <td style={cellStyle}>
                 {post.title.rendered}
                 <br />
-                {post.link}
+                {post.link}  
                 <br />
                 #wadifaty
+                <br />
+                <button
+                  className="bg-red-500 m-5 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                  onClick={() => handleCopy(`${post.title.rendered}\n${post.link}\n#wadifaty`)}
+                >
+                  Copy
+                </button>
               </td>
               <td>
                 <button
