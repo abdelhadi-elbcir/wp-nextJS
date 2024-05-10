@@ -9,33 +9,28 @@ interface Post {
   featured_media: number;
 }
 
-interface Site {
-  id: string;
-  url: string;
-}
+type PostWithOutImagesProps = {
+  wp: string;
+  in: string;
+};
 
-const PostWithOutImages: any = () => {
+const PostWithOutImages: React.FC<PostWithOutImagesProps> = (props) => {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [site, setSite] = useState<Site>({
-    id: "42472585",
-    url: "wadifaty.ma",
-  });
-  const [msg, setMsg] = useState<{}>({});
+  const [msg, setMsg] = useState<string | null>(null); // Changed the type of msg state
   const ACCESS_TOKEN = "YOUR_ACCESS_TOKEN";
 
-  const fetchData = async () => {
-    try {
-      const BASE_URL = `https://${site.url}/wp-json/wp/v2/posts?per_page=30`;
-      const response = await axios.get<Post[]>(BASE_URL);
-      setPosts(response.data);
-    } catch (error) {
-      console.error("Error fetching or processing data:", error);
-    }
-  };
-
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const BASE_URL = `https://${props.wp}/wp-json/wp/v2/posts?per_page=30`;
+        const response = await axios.get<Post[]>(BASE_URL);
+        setPosts(response.data);
+      } catch (error) {
+        console.error("Error fetching or processing data:", error);
+      }
+    };
     fetchData();
-  }, [site]);
+  }, []);
 
   const postData = (post: Post) => {
     const { title, link, image } = post;
@@ -44,23 +39,15 @@ const PostWithOutImages: any = () => {
         contentEntities: [
           {
             entityLocation: `${link}`,
-            thumbnails: [
-              {
-                resolvedUrl: image,
-              },
-            ],
+            thumbnails: [{ resolvedUrl: image }],
           },
         ],
         title: `${title.rendered}`,
       },
-      distribution: {
-        linkedInDistributionTarget: {},
-      },
-      owner: `urn:li:organization:${site.id}`,
+      distribution: { linkedInDistributionTarget: {} },
+      owner: `urn:li:organization:${props.in}`,
       subject: "Test Share Subject",
-      text: {
-        text: `${title.rendered} \n${link}\n#Recrutement`,
-      },
+      text: { text: `${title.rendered} \n${link}\n#Recrutement` },
     };
 
     axios({
@@ -74,11 +61,11 @@ const PostWithOutImages: any = () => {
     })
       .then((response: AxiosResponse) => {
         console.log(response.data);
-        setMsg(response.data);
+        setMsg(JSON.stringify(response.data));
       })
-      .catch((error: any) => {
+      .catch((error:any) => {
         console.error(error);
-        setMsg(error);
+        setMsg(error.message);
       });
   };
 
@@ -103,7 +90,7 @@ const PostWithOutImages: any = () => {
               <td style={cellStyle}>
                 {post.title.rendered}
                 <br />
-                {post.link}  
+                {post.link}
                 <br />
                 #wadifaty
                 <br />
@@ -126,6 +113,7 @@ const PostWithOutImages: any = () => {
           ))}
         </tbody>
       </table>
+      <div>{msg !== null ? msg : ""}</div> {/* Added rendering of msg state */}
     </div>
   );
 };
