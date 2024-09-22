@@ -92,7 +92,7 @@ const PostWithOutImages: React.FC<PostWithOutImagesProps> = (props) => {
                 <br />
                 {post.link}
                 <br />
-                #wadifaty
+                #Recrutement #Offre_Emploi
                 <br />
                 <button
                   className="bg-red-500 m-5 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
