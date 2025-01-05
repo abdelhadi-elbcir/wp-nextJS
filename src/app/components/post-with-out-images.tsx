@@ -16,13 +16,15 @@ type PostWithOutImagesProps = {
 
 const PostWithOutImages: React.FC<PostWithOutImagesProps> = (props) => {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [msg, setMsg] = useState<string | null>(null); // Changed the type of msg state
+  const [msg, setMsg] = useState<string | null>(null);
+  const [categoryId, setCategoryId] = useState<string>(""); // State for category ID
   const ACCESS_TOKEN = "YOUR_ACCESS_TOKEN";
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const BASE_URL = `https://${props.wp}/wp-json/wp/v2/posts?per_page=30`;
+        const categoryParam = categoryId ? `&categories=${categoryId}` : "";
+        const BASE_URL = `https://${props.wp}/wp-json/wp/v2/posts?per_page=30${categoryParam}`;
         const response = await axios.get<Post[]>(BASE_URL);
         setPosts(response.data);
       } catch (error) {
@@ -30,7 +32,7 @@ const PostWithOutImages: React.FC<PostWithOutImagesProps> = (props) => {
       }
     };
     fetchData();
-  }, []);
+  }, [categoryId]); // Re-fetch when categoryId changes
 
   const postData = (post: Post) => {
     const { title, link, image } = post;
@@ -63,7 +65,7 @@ const PostWithOutImages: React.FC<PostWithOutImagesProps> = (props) => {
         console.log(response.data);
         setMsg(JSON.stringify(response.data));
       })
-      .catch((error:any) => {
+      .catch((error: any) => {
         console.error(error);
         setMsg(error.message);
       });
@@ -75,12 +77,30 @@ const PostWithOutImages: React.FC<PostWithOutImagesProps> = (props) => {
 
   return (
     <div style={{ margin: "10px" }}>
+      <div style={{ marginBottom: "20px" }}>
+        <label htmlFor="categoryId" style={{ marginRight: "10px" }}>
+          Enter Category ID:
+        </label>
+        <input
+          type="text"
+          id="categoryId"
+          value={categoryId}
+          onChange={(e) => setCategoryId(e.target.value)}
+          style={{
+            padding: "5px",
+            border: "1px solid #ddd",
+            borderRadius: "4px",
+          }}
+          placeholder="Leave empty to fetch all"
+        />
+      </div>
+
       <table style={{ borderCollapse: "collapse", width: "100%" }}>
         <thead>
           <tr style={{ background: "#f2f2f2" }}>
             <th style={cellStyle}>ID</th>
-            <th style={cellStyle}>post</th>
-            <th style={cellStyle}>action</th>
+            <th style={cellStyle}>Post</th>
+            <th style={cellStyle}>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -96,7 +116,7 @@ const PostWithOutImages: React.FC<PostWithOutImagesProps> = (props) => {
                 <br />
                 <button
                   className="bg-red-500 m-5 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={() => handleCopy(`${post.title.rendered}\n${post.link}\n#wadifaty`)}
+                  onClick={() => handleCopy(`${post.title.rendered}\n${post.link}\n#Recrutement #Offre_Emploi`)}
                 >
                   Copy
                 </button>
@@ -113,7 +133,7 @@ const PostWithOutImages: React.FC<PostWithOutImagesProps> = (props) => {
           ))}
         </tbody>
       </table>
-      <div>{msg !== null ? msg : ""}</div> {/* Added rendering of msg state */}
+      <div>{msg !== null ? msg : ""}</div>
     </div>
   );
 };
